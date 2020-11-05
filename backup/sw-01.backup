@@ -1,0 +1,28 @@
+! Command: show running-config
+! device: ans-5264-sw-01 (vEOS, EOS-4.22.0F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+transceiver qsfp default-mode 4x10G
+!
+hostname ans-5264-sw-01
+!
+ntp server 0.us.pool.ntp.org
+!
+spanning-tree mode mstp
+!
+no aaa root
+!
+username admin role network-admin secret sha512 $6$u9uS2qI8bAlJB393$bBC4kFKH9bwKMRMZq.dQ5lcSlM5VEkvcmUC.VpXuI24m9yducnLmVHUxtPEmWigJOVGPAHJTc/Ct2hXoVRF4l0
+!
+interface Management1
+   ip address dhcp
+   dhcp client accept default-route
+!
+no ip routing
+!
+management api http-commands
+   protocol http
+   no shutdown
+!
+end

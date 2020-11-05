@@ -1,0 +1,27 @@
+---
+- name: class practice
+  hosts: planetexpress
+
+  roles:
+    - copy_example
+
+  vars_prompts:
+    - name: "yourpetname"
+      prompt: "what is your pet name?"
+      private: yes
+      confirm: yes
+
+  task: 
+    - name: Install steam locomotive on All hosts
+      apt:
+        name: sl
+        state: present
+      become: yes
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Install steam locomotive on All hosts
+      apt:
+        name: sl
+        state: present
+      become: yes
+      when: ansible_distribution == "Centos"

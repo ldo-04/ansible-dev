@@ -1,0 +1,50 @@
+---
+- name: Network Switch Config Saver (v2.9 and beyond)
+  hosts: allvendors
+  # in ansible v2.9+ gather_facts
+  # would gather_facts about the switches when "ansible_connection: network_cli"
+  # this value is mapped in ~/switch.creds
+  # the correct *_info or *_facts module is selected based off of "ansible_network_os" value
+  # which is typically provided in inventory as a group or host variable
+  gather_facts: yes
+  gather_subset: all  # max, min, config, all, hardware
+  # ^^ the gather_subset is introduced in v2.9
+  # users can now also optionally set info they want the gather_facts
+  # modules to gather when running against specific vendors
+  #module_defaults:
+  #  eos_facts:
+  #    gather_network_resources: interfaces
+
+  # location on the controller
+  vars_files:
+    - ~/switch.creds
+
+  tasks:
+  # define current date
+  - name: get the current date
+    command: date "+%Y-%m-%d"
+    register: result
+    vars:
+      ansible_connection: local
+
+  # set a fact to make things easier
+  - name: set a variable to make date easier
+    set_fact:
+      date_now: "{{ result.stdout }}"          
+
+  # build backup directory based on the current date
+  - name: Create dir "{{ date_now }}" to save current switch config backups
+    file:
+      path: "~/ans/backup/{{ date_now }}/"
+      state: directory    # Playbook will FAIL without this directory
+
+  - name: Save out backed up configuration       
+    copy:
+      content: "{{ ansible_net_config }}"
+      dest: "~/ans/backup/{{ date_now }}/{{ inventory_hostname }}-config.backup"
+
+  - name: Archival process
+    archive:
+      path: "~/ans/backup/{{ date_now }}/{{ inventory_hostname }}-config.backup"
+      remove: True     # removes the original file
+
